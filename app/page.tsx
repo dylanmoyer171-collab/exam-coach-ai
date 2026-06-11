@@ -88,66 +88,173 @@ export default function Home() {
   })();
 
   const samplePlan = (() => {
-    const header = `${examType} plan for ${testDate ? `test on ${testDate}` : "your target date"}`;
+    const header = `${examType === "AP" ? "AP" : examType} plan for ${testDate ? `test on ${testDate}` : "your target date"}`;
     const hoursText = `${hoursPerWeek} hrs/week`;
 
     if (examType === "ACT") {
+      const isScience = weakArea.toLowerCase().includes("science");
+      const isReading = weakArea.toLowerCase().includes("reading");
+      const isMath = weakArea.toLowerCase().includes("math");
+      const isEnglish = weakArea.toLowerCase().includes("english");
+
       return {
         header,
         hoursText,
         weeks: [
           {
             title: "Week 1",
-            subtitle: "Timed reading & science drills",
-            description: `Use ${hoursPerWeek} hours this week to establish pacing and accuracy in reading and science.`,
+            subtitle: "Diagnostic & weak area mapping",
+            description: `Take a full-length ACT diagnostic. Analyze your ${weakArea} performance in detail. Allocate ${hoursPerWeek * 0.4}h to review patterns and ${hoursPerWeek * 0.6}h to foundational skill drills in your weak area.`,
           },
           {
             title: "Week 2",
-            subtitle: "Math strategy sprint",
-            description: `Focus on ACT math shortcuts and geometry problem-solving targeted to your weak area of ${weakArea}.`,
+            subtitle: isMath ? "ACT math strategies" : isEnglish ? "English grammar & punctuation" : isScience ? "Science reasoning practice" : "Reading comprehension tactics",
+            description: isMath
+              ? `Master ${weakArea} concepts (algebra, geometry, trigonometry). Use ${hoursPerWeek * 0.5}h on Khan Academy or official ACT prep for these topics, ${hoursPerWeek * 0.5}h on timed problem sets.`
+              : isEnglish
+              ? `Drill grammar rules, comma splices, and parallel structure. Spend ${hoursPerWeek * 0.6}h on targeted exercises and ${hoursPerWeek * 0.4}h on passage-based practice.`
+              : isScience
+              ? `Practice interpret graphs and data-driven questions. ${hoursPerWeek * 0.5}h on data representation, ${hoursPerWeek * 0.5}h on research summaries.`
+              : `Build speed and accuracy on dense passages. ${hoursPerWeek * 0.5}h untimed comprehension, ${hoursPerWeek * 0.5}h timed practice under test conditions.`,
           },
           {
             title: "Week 3",
-            subtitle: "English & source analysis",
-            description: `Build grammar confidence and practice passage analysis for consistent scoring growth.`,
+            subtitle: "Full section & integrated practice",
+            description: `Take two full-length ACT practice tests (full 3h 35m). Review every missed question, categorizing by error type (careless, concept, pacing). Dedicate remaining ${hoursPerWeek - 7}h to drilling the specific error categories.`,
           },
           {
             title: "Week 4",
-            subtitle: "Full ACT practice exams",
-            description: `Complete full-length practice tests, review mistakes, and finalize pacing before ${testDate || "test day"}.`,
+            subtitle: "Final review & test-day readiness",
+            description: `Complete one more full-length under test conditions. Review weak patterns one more time. Spend ${hoursPerWeek * 0.5}h polishing pacing on ${weakArea}, ${hoursPerWeek * 0.5}h on confidence-building with easy-to-medium problem sets.`,
           },
         ],
       };
     }
 
     if (examType === "AP") {
+      const isCalculus = weakArea.toLowerCase().includes("calculus") || weakArea.toLowerCase().includes("calc");
+      const isPhysics = weakArea.toLowerCase().includes("physics");
+      const isChemistry = weakArea.toLowerCase().includes("chemistry") || weakArea.toLowerCase().includes("chem");
+
+      if (isCalculus) {
+        return {
+          header: `AP Calculus plan for ${testDate ? `test on ${testDate}` : "your target date"}`,
+          hoursText,
+          weeks: [
+            {
+              title: "Week 1",
+              subtitle: "Limits, derivatives & fundamentals",
+              description: `Master limits and derivative rules (power, product, quotient, chain). Spend ${hoursPerWeek * 0.4}h on limit laws and conceptual understanding, ${hoursPerWeek * 0.6}h on computational drills of basic derivatives.`,
+            },
+            {
+              title: "Week 2",
+              subtitle: "Applications & FRQ practice",
+              description: `Focus on applied derivatives (optimization, related rates, L'Hôpital's rule). Dedicate ${hoursPerWeek * 0.5}h to understanding problem setup and ${hoursPerWeek * 0.5}h to AP-style free-response practice with detailed justification.`,
+            },
+            {
+              title: "Week 3",
+              subtitle: "Integration & area problems",
+              description: `Master integration techniques, Riemann sums, and applications. Allocate ${hoursPerWeek * 0.6}h to integration drills (substitution, by parts) and ${hoursPerWeek * 0.4}h to area and volume problems with multiple-choice practice.`,
+            },
+            {
+              title: "Week 4",
+              subtitle: "Full-length practice & final polish",
+              description: `Complete two full-length AP Calculus exams (105 min MC + 90 min FRQ). Review all errors carefully. Spend ${hoursPerWeek * 0.5}h on error analysis and ${hoursPerWeek * 0.5}h on confidence-building with supplementary problem sets in ${weakArea}.`,
+            },
+          ],
+        };
+      }
+
+      if (isPhysics) {
+        return {
+          header: `AP Physics plan for ${testDate ? `test on ${testDate}` : "your target date"}`,
+          hoursText,
+          weeks: [
+            {
+              title: "Week 1",
+              subtitle: "Kinematics & forces fundamentals",
+              description: `Master motion equations and Newton's laws. Spend ${hoursPerWeek * 0.4}h on conceptual understanding with free-body diagrams and ${hoursPerWeek * 0.6}h on computational practice (equations of motion, force analysis).`,
+            },
+            {
+              title: "Week 2",
+              subtitle: "Work, energy & impulse",
+              description: `Learn energy conservation and momentum principles. Dedicate ${hoursPerWeek * 0.5}h to connecting concepts (KE, PE, work-energy theorem) and ${hoursPerWeek * 0.5}h to problems requiring multi-step analysis.`,
+            },
+            {
+              title: "Week 3",
+              subtitle: "Circuits, waves & oscillations",
+              description: `Master circuit analysis, standing waves, and simple harmonic motion. Allocate ${hoursPerWeek * 0.6}h to lab-based scenarios and data interpretation, ${hoursPerWeek * 0.4}h to conceptual multiple-choice practice on less familiar topics.`,
+            },
+            {
+              title: "Week 4",
+              subtitle: "Full-length exams & FRQ mastery",
+              description: `Complete two full AP Physics exams (90 min MC + 90 min FRQ). Analyze common FRQ scoring patterns. Spend ${hoursPerWeek * 0.5}h on targeted FRQ practice and explanations, ${hoursPerWeek * 0.5}h on weak-topic reinforcement with problem sets.`,
+            },
+          ],
+        };
+      }
+
+      if (isChemistry) {
+        return {
+          header: `AP Chemistry plan for ${testDate ? `test on ${testDate}` : "your target date"}`,
+          hoursText,
+          weeks: [
+            {
+              title: "Week 1",
+              subtitle: "Stoichiometry & atomic structure",
+              description: `Strengthen foundational chemistry: moles, limiting reactants, and atomic models. Spend ${hoursPerWeek * 0.4}h on conceptual videos (Crash Course or Khan Academy) and ${hoursPerWeek * 0.6}h on calculation-heavy problem sets.`,
+            },
+            {
+              title: "Week 2",
+              subtitle: "Equilibrium & thermodynamics",
+              description: `Master equilibrium constants, Le Chatelier's principle, and thermochemistry. Dedicate ${hoursPerWeek * 0.5}h to equilibrium problem-solving and ${hoursPerWeek * 0.5}h to understanding enthalpy and entropy applications.`,
+            },
+            {
+              title: "Week 3",
+              subtitle: "Acid-base & redox reactions",
+              description: `Learn pH, buffers, and electron transfer. Allocate ${hoursPerWeek * 0.6}h to balancing redox equations and pH calculations, ${hoursPerWeek * 0.4}h to interpreting titration curves and lab data interpretation.`,
+            },
+            {
+              title: "Week 4",
+              subtitle: "Full-length exams & synthesis",
+              description: `Complete two full AP Chemistry exams (90 min MC + 105 min FRQ including lab-based questions). Review FRQ rubrics and common scoring pitfalls. Spend ${hoursPerWeek * 0.5}h on thorough FRQ practice and ${hoursPerWeek * 0.5}h on reinforcing ${weakArea} with targeted problem sets.`,
+            },
+          ],
+        };
+      }
+
+      // Generic AP fallback
       return {
         header,
         hoursText,
         weeks: [
           {
             title: "Week 1",
-            subtitle: "Core concept review",
-            description: `Build the foundation in your AP subject and align practice to classroom objectives.`,
+            subtitle: "Diagnostic & concept inventory",
+            description: `Assess your understanding of major unit topics. Spend ${hoursPerWeek * 0.4}h identifying knowledge gaps in ${weakArea}. Allocate ${hoursPerWeek * 0.6}h to reviewing the most critical foundational concepts and definitions.`,
           },
           {
             title: "Week 2",
-            subtitle: "Essay & free-response prep",
-            description: `Practice written responses and scoring guides for the AP exam format.`,
+            subtitle: "Active recall & problem-solving",
+            description: `Focus on ${weakArea} using Cornell notes and spaced repetition. Dedicate ${hoursPerWeek * 0.6}h to practice problems and FRQs, ${hoursPerWeek * 0.4}h to reviewing solutions and understanding mistake patterns.`,
           },
           {
             title: "Week 3",
-            subtitle: "Multiple choice mastery",
-            description: `Strengthen recall and timing across the subject using ${hoursPerWeek} hours of focused review.`,
+            subtitle: "Multiple-choice & timing practice",
+            description: `Complete full-length practice tests under timed conditions. Review all missed questions. Allocate ${hoursPerWeek * 0.7}h to practice tests and ${hoursPerWeek * 0.3}h to targeted review of recurring weak topics.`,
           },
           {
             title: "Week 4",
-            subtitle: "Final review sprint",
-            description: `Use targeted study sessions to polish your weak area and finalize exam-ready confidence.`,
+            subtitle: "Final review sprint & test prep",
+            description: `Do one final practice test and comprehensive review. Spend ${hoursPerWeek * 0.5}h on FRQ practice and scoring rubrics. Use remaining ${hoursPerWeek * 0.5}h to boost confidence on ${weakArea} with easier problem sets and key fact review.`,
           },
         ],
       };
     }
+
+    // SAT Plan
+    const isReadingWriting = weakArea.toLowerCase().includes("reading") || weakArea.toLowerCase().includes("writing") || weakArea.toLowerCase().includes("english");
+    const isMathSAT = weakArea.toLowerCase().includes("math") || weakArea.toLowerCase().includes("algebra") || weakArea.toLowerCase().includes("geometry");
 
     return {
       header,
@@ -155,23 +262,25 @@ export default function Home() {
       weeks: [
         {
           title: "Week 1",
-          subtitle: "Diagnostic & strategy mapping",
-          description: `Run a full diagnostic and map your performance to focus on ${weakArea.toLowerCase()}.`,
+          subtitle: "Diagnostic & skill mapping",
+          description: `Take a full SAT diagnostic. Analyze score breakdown by section. Spend ${hoursPerWeek * 0.4}h identifying patterns in ${weakArea} errors and ${hoursPerWeek * 0.6}h on foundational skill reviews (Khan Academy is ideal for this).`,
         },
         {
           title: "Week 2",
-          subtitle: "Targeted practice blocks",
-          description: `Commit ${hoursPerWeek} hours to targeted practice for the highest-value SAT skills.`,
+          subtitle: isReadingWriting ? "Reading & writing precision" : "Math mastery drills",
+          description: isReadingWriting
+            ? `Master vocabulary, grammar rules, and passage comprehension. Dedicate ${hoursPerWeek * 0.5}h to targeted lessons, ${hoursPerWeek * 0.5}h to untimed practice problems until mastery is clear.`
+            : `Build deep understanding of algebra, advanced math, and problem-solving. Use ${hoursPerWeek * 0.5}h for concept reviews and ${hoursPerWeek * 0.5}h for worked problem sets targeting ${weakArea}.`,
         },
         {
           title: "Week 3",
-          subtitle: "Timed section practice",
-          description: `Build test endurance with timed reading and math sections while refining pacing.`,
+          subtitle: "Timed section practice & pacing",
+          description: `Complete two full-length SAT practice tests under real test conditions. Analyze timing and accuracy for each section. Spend ${hoursPerWeek * 0.6}h on timed tests and ${hoursPerWeek * 0.4}h analyzing all mistakes by category.`,
         },
         {
           title: "Week 4",
-          subtitle: "Review & confidence boost",
-          description: `Wrap up with focused review, weak-area drills, and exam readiness checks before ${testDate || "test day"}.`,
+          subtitle: "Weak-area intensive & confidence build",
+          description: `Do one final full-length SAT. Review all errors in depth. Allocate ${hoursPerWeek * 0.5}h to drilling ${weakArea} with targeted problem sets, ${hoursPerWeek * 0.5}h to review and final confidence-building on your strongest skills.`,
         },
       ],
     };
