@@ -1,6 +1,12 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type WeekStatus = "Not Started" | "In Progress" | "Complete";
 
@@ -306,12 +312,12 @@ export default function Home() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                <button className="inline-flex items-center justify-center rounded-3xl bg-cyan-500 px-7 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-400" onClick={() => setSubmitted(true)}>
+                <Button size="lg" onClick={() => setSubmitted(true)}>
                   Generate My Study Plan
-                </button>
-                <a href="#exam-form" className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-7 py-4 text-base text-slate-200 transition hover:border-cyan-400 hover:text-cyan-300">
+                </Button>
+                <Button variant="outline" size="lg" onClick={() => document.getElementById("exam-form")?.scrollIntoView({ behavior: "smooth" })}>
                   Fill out the form
-                </a>
+                </Button>
               </div>
             </section>
 
@@ -350,139 +356,176 @@ export default function Home() {
             </div>
 
             <form onSubmit={handleSubmit} className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_320px]">
-              <div className="space-y-5 rounded-[1.5rem] border border-white/10 bg-slate-900/90 p-6">
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <label className="space-y-2 text-sm text-slate-300">
-                    Exam Type
-                    <select value={examType} onChange={(event) => setExamType(event.target.value)} className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400">
-                      <option>SAT</option>
-                      <option>ACT</option>
-                      <option>AP</option>
-                    </select>
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-300">
-                    Current Score
-                    <input type="number" value={currentScore} onChange={(event) => setCurrentScore(Number(event.target.value))} className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400" min={0} />
-                  </label>
-                </div>
+              <Card className="space-y-5">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Your preferences</CardTitle>
+                  <CardDescription>Customize your study plan to match your goals and timeline</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="exam-type">Exam Type</Label>
+                      <Select value={examType} onValueChange={setExamType}>
+                        <SelectTrigger id="exam-type">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SAT">SAT</SelectItem>
+                          <SelectItem value="ACT">ACT</SelectItem>
+                          <SelectItem value="AP">AP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="current-score">Current Score</Label>
+                      <Input id="current-score" type="number" value={currentScore} onChange={(event) => setCurrentScore(Number(event.target.value))} min={0} />
+                    </div>
+                  </div>
 
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <label className="space-y-2 text-sm text-slate-300">
-                    Target Score
-                    <input type="number" value={targetScore} onChange={(event) => setTargetScore(Number(event.target.value))} className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400" min={0} />
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-300">
-                    Test Date
-                    <input type="date" value={testDate} onChange={(event) => setTestDate(event.target.value)} className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400" />
-                  </label>
-                </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="target-score">Target Score</Label>
+                      <Input id="target-score" type="number" value={targetScore} onChange={(event) => setTargetScore(Number(event.target.value))} min={0} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="test-date">Test Date</Label>
+                      <Input id="test-date" type="date" value={testDate} onChange={(event) => setTestDate(event.target.value)} />
+                    </div>
+                  </div>
 
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <label className="space-y-2 text-sm text-slate-300">
-                    Biggest Weak Area
-                    <input type="text" value={weakArea} onChange={(event) => setWeakArea(event.target.value)} className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400" />
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-300">
-                    Hours per Week
-                    <input type="number" value={hoursPerWeek} onChange={(event) => setHoursPerWeek(Number(event.target.value))} className="w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400" min={1} />
-                  </label>
-                </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="weak-area">Biggest Weak Area</Label>
+                      <Input id="weak-area" type="text" value={weakArea} onChange={(event) => setWeakArea(event.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="hours-per-week">Hours per Week</Label>
+                      <Input id="hours-per-week" type="number" value={hoursPerWeek} onChange={(event) => setHoursPerWeek(Number(event.target.value))} min={1} />
+                    </div>
+                  </div>
 
-                <button type="submit" className="w-full rounded-3xl bg-cyan-500 px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-cyan-400">
-                  Generate My Study Plan
-                </button>
-              </div>
+                  <Button type="submit" size="lg" className="w-full">
+                    Generate My Study Plan
+                  </Button>
+                </CardContent>
+              </Card>
 
-              <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/90 p-6 text-slate-300">
-                <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Instant preview</p>
-                <h3 className="mt-4 text-2xl font-semibold text-white">What to expect</h3>
-                <p className="mt-3 text-sm leading-6">
-                  A clean, step-by-step starter plan with progress markers, targeted review sessions, and the right practice pacing for your exam.
-                </p>
-                <ul className="mt-6 space-y-4 text-sm leading-6 text-slate-300">
-                  <li className="rounded-3xl bg-slate-950/80 p-4 ring-1 ring-white/10">Personalized timeline based on your target score and test date.</li>
-                  <li className="rounded-3xl bg-slate-950/80 p-4 ring-1 ring-white/10">Focus blocks for your biggest weakness: {weakArea}.</li>
-                  <li className="rounded-3xl bg-slate-950/80 p-4 ring-1 ring-white/10">Actionable weekly review items to boost confidence quickly.</li>
-                </ul>
-              </div>
+              <Card className="h-fit">
+                <CardHeader>
+                  <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Instant preview</p>
+                  <CardTitle>What to expect</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm leading-6">
+                    A clean, step-by-step starter plan with progress markers, targeted review sessions, and the right practice pacing for your exam.
+                  </p>
+                  <ul className="space-y-3 text-sm leading-6 text-slate-300">
+                    <li className="rounded-3xl bg-slate-950/80 p-4 ring-1 ring-white/10">Personalized timeline based on your target score and test date.</li>
+                    <li className="rounded-3xl bg-slate-950/80 p-4 ring-1 ring-white/10">Focus blocks for your biggest weakness: {weakArea}.</li>
+                    <li className="rounded-3xl bg-slate-950/80 p-4 ring-1 ring-white/10">Actionable weekly review items to boost confidence quickly.</li>
+                  </ul>
+                </CardContent>
+              </Card>
             </form>
 
             {submitted ? (
-              <div className="mt-10 rounded-[1.75rem] border border-cyan-500/20 bg-slate-950/95 p-8 shadow-xl shadow-cyan-500/10">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Premium study dashboard</p>
-                    <h3 className="mt-2 text-2xl font-semibold text-white">{samplePlan.header}</h3>
+              <Card className="mt-10 border-cyan-500/20">
+                <CardHeader className="bg-gradient-to-r from-cyan-500/10 to-transparent">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Premium study dashboard</p>
+                      <CardTitle className="mt-2">{samplePlan.header}</CardTitle>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge variant="secondary">Goal: {currentScore} → {targetScore}</Badge>
+                      <Badge variant="secondary">Load: {samplePlan.hoursText}</Badge>
+                    </div>
                   </div>
-                  <div className="rounded-3xl bg-slate-900/90 px-4 py-2 text-sm text-slate-200 ring-1 ring-white/10">
-                    Goal: {currentScore} → {targetScore}
-                  </div>
-                  <div className="rounded-3xl bg-slate-900/90 px-4 py-2 text-sm text-slate-200 ring-1 ring-white/10">
-                    Load: {samplePlan.hoursText}
-                  </div>
-                </div>
+                </CardHeader>
+                <CardContent className="space-y-8 pt-8">
 
                 <div className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
                   {samplePlan.weeks.map((week) => (
-                    <div key={week.title} className="rounded-[1.5rem] border border-white/10 bg-slate-900/95 p-6 shadow-lg shadow-slate-950/20 transition hover:-translate-y-1 hover:border-cyan-500/20">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">{week.title}</p>
-                        <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">{examType}</span>
-                      </div>
-                      <h4 className="text-xl font-semibold text-white">{week.subtitle}</h4>
-                      <p className="mt-3 text-sm leading-6 text-slate-400">{week.description}</p>
-                      <div className="mt-5 flex flex-col gap-3">
-                        <label className="text-sm text-slate-300">
-                          Status
-                          <select
-                            value={weekStatus[week.title]}
-                            onChange={(event) => setWeekStatus((prev) => ({
-                              ...prev,
-                              [week.title]: event.target.value as WeekStatus,
-                            }))}
-                            className="mt-2 w-full rounded-3xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400"
-                          >
-                            <option>Not Started</option>
-                            <option>In Progress</option>
-                            <option>Complete</option>
-                          </select>
-                        </label>
-                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/90 px-4 py-2 text-sm text-slate-300 ring-1 ring-white/10">
-                          <span className={`h-2.5 w-2.5 rounded-full ${weekStatus[week.title] === "Complete" ? "bg-emerald-400" : weekStatus[week.title] === "In Progress" ? "bg-cyan-300" : "bg-slate-500"}`} />
-                          {weekStatus[week.title]}
+                    <Card key={week.title} className="transition hover:-translate-y-1 hover:border-cyan-500/20">
+                      <CardHeader className="pb-3">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">{week.title}</p>
+                          <Badge variant="secondary">{examType}</Badge>
                         </div>
-                      </div>
-                    </div>
+                        <CardTitle className="text-xl">{week.subtitle}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-sm leading-6 text-slate-400">{week.description}</p>
+                        <div className="space-y-3">
+                          <Label htmlFor={`status-${week.title}`} className="text-sm">
+                            Status
+                          </Label>
+                          <Select value={weekStatus[week.title]} onValueChange={(value) => setWeekStatus((prev) => ({
+                            ...prev,
+                            [week.title]: value as WeekStatus,
+                          }))}>
+                            <SelectTrigger id={`status-${week.title}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Not Started">Not Started</SelectItem>
+                              <SelectItem value="In Progress">In Progress</SelectItem>
+                              <SelectItem value="Complete">Complete</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Badge variant={
+                            weekStatus[week.title] === "Complete" 
+                              ? "status_complete" 
+                              : weekStatus[week.title] === "In Progress" 
+                              ? "status_inprogress" 
+                              : "status_notstarted"
+                          } className="mt-2 w-fit">
+                            {weekStatus[week.title]}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
 
                 {/* Score predictor displayed under the plan and progress tracker */}
-                <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-slate-900/90 p-6 shadow-lg shadow-slate-950/20">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Score predictor</p>
-                      <h3 className="mt-2 text-2xl font-semibold text-white">Estimated progress & likelihood</h3>
+                <Card className="mt-8 border-white/10">
+                  <CardHeader>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Score predictor</p>
+                        <CardTitle className="mt-2">Estimated progress & likelihood</CardTitle>
+                      </div>
+                      <Badge variant="secondary">{scorePrediction.label}</Badge>
                     </div>
-                    <div className="rounded-3xl bg-slate-950 px-4 py-2 text-sm text-slate-200 ring-1 ring-white/10">{scorePrediction.label}</div>
-                  </div>
-                  <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-3xl bg-slate-950/95 p-5 ring-1 ring-white/10">
-                      <p className="text-sm text-slate-400">Estimated gain</p>
-                      <p className="mt-2 text-2xl font-semibold text-white">{scorePrediction.estimatedGain ?? 0} pts</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <Card className="bg-slate-950/95">
+                        <CardContent className="p-5">
+                          <p className="text-sm text-slate-400">Estimated gain</p>
+                          <p className="mt-2 text-2xl font-semibold text-white">{scorePrediction.estimatedGain ?? 0} pts</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-slate-950/95">
+                        <CardContent className="p-5">
+                          <p className="text-sm text-slate-400">Likelihood</p>
+                          <p className="mt-2 text-2xl font-semibold text-white">{scorePrediction.percentage}%</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-slate-950/95">
+                        <CardContent className="p-5">
+                          <p className="text-sm text-slate-400">Time & load</p>
+                          <p className="mt-2 text-2xl font-semibold text-white">{hoursPerWeek} hrs/week</p>
+                        </CardContent>
+                      </Card>
                     </div>
-                    <div className="rounded-3xl bg-slate-950/95 p-5 ring-1 ring-white/10">
-                      <p className="text-sm text-slate-400">Likelihood</p>
-                      <p className="mt-2 text-2xl font-semibold text-white">{scorePrediction.percentage}%</p>
-                    </div>
-                    <div className="rounded-3xl bg-slate-950/95 p-5 ring-1 ring-white/10">
-                      <p className="text-sm text-slate-400">Time & load</p>
-                      <p className="mt-2 text-2xl font-semibold text-white">{hoursPerWeek} hrs/week</p>
-                    </div>
-                  </div>
-                  <p className="mt-5 text-sm leading-6 text-slate-300">{scorePrediction.message}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">{scorePrediction.note}</p>
-                </div>
-              </div>
+                    <p className="text-sm leading-6 text-slate-300">{scorePrediction.message}</p>
+                    <p className="text-sm leading-6 text-slate-400">{scorePrediction.note}</p>
+                  </CardContent>
+                </Card>
+                </CardContent>
+              </Card>
             ) : null}
           </section>
 
@@ -498,21 +541,33 @@ export default function Home() {
             </div>
 
             <div className="grid gap-5 lg:grid-cols-3">
-              <article className="rounded-3xl border border-white/10 bg-slate-900/90 p-6 transition hover:-translate-y-1 hover:border-cyan-500/20 hover:bg-slate-900">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">SAT</p>
-                <h3 className="mt-4 text-xl font-semibold text-white">Target reading & math mastery</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">Build confidence with full-length practice, strategy guides, and score-tracking milestones.</p>
-              </article>
-              <article className="rounded-3xl border border-white/10 bg-slate-900/90 p-6 transition hover:-translate-y-1 hover:border-cyan-500/20 hover:bg-slate-900">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">ACT</p>
-                <h3 className="mt-4 text-xl font-semibold text-white">Fast-paced test readiness</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">Optimize timing, science reasoning, and English precision with adaptive drills.</p>
-              </article>
-              <article className="rounded-3xl border border-white/10 bg-slate-900/90 p-6 transition hover:-translate-y-1 hover:border-cyan-500/20 hover:bg-slate-900">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">AP Exams</p>
-                <h3 className="mt-4 text-xl font-semibold text-white">Crash courses for top scores</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">Set review paths, essential concept checklists, and exam-specific practice by subject.</p>
-              </article>
+              <Card className="transition hover:-translate-y-1 hover:border-cyan-500/20">
+                <CardHeader>
+                  <Badge variant="secondary" className="w-fit">SAT</Badge>
+                  <CardTitle className="mt-4">Target reading & math mastery</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-6 text-slate-400">Build confidence with full-length practice, strategy guides, and score-tracking milestones.</p>
+                </CardContent>
+              </Card>
+              <Card className="transition hover:-translate-y-1 hover:border-cyan-500/20">
+                <CardHeader>
+                  <Badge variant="secondary" className="w-fit">ACT</Badge>
+                  <CardTitle className="mt-4">Fast-paced test readiness</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-6 text-slate-400">Optimize timing, science reasoning, and English precision with adaptive drills.</p>
+                </CardContent>
+              </Card>
+              <Card className="transition hover:-translate-y-1 hover:border-cyan-500/20">
+                <CardHeader>
+                  <Badge variant="secondary" className="w-fit">AP Exams</Badge>
+                  <CardTitle className="mt-4">Crash courses for top scores</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-6 text-slate-400">Set review paths, essential concept checklists, and exam-specific practice by subject.</p>
+                </CardContent>
+              </Card>
             </div>
           </section>
         </div>
