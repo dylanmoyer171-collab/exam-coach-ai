@@ -1,18 +1,204 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DIAGNOSTIC_QUESTIONS, gradeDiagnostic, type DiagnosticExamType } from "@/lib/diagnostic-data";
 
+type PracticeQuestion = {
+  question: string;
+  answer: string;
+  explanation: string;
+};
+
+type PracticeSet = {
+  category: string;
+  questions: PracticeQuestion[];
+};
+
 const examTypes: DiagnosticExamType[] = ["SAT", "ACT", "AP"];
+
+const PRACTICE_QUESTION_SETS: Record<string, PracticeQuestion[]> = {
+  Algebra: [
+    {
+      question: "Solve for x: 5x - 7 = 18.",
+      answer: "5",
+      explanation: "Add 7 to both sides, then divide by 5: x = 5.",
+    },
+    {
+      question: "If y = 2x + 3 and x = 4, what is y?",
+      answer: "11",
+      explanation: "Substitute x = 4 into y = 2(4) + 3 to get y = 11.",
+    },
+    {
+      question: "Simplify: 3(2x + 1) - 4x.",
+      answer: "2x + 3",
+      explanation: "Distribute and combine like terms: 6x + 3 - 4x = 2x + 3.",
+    },
+  ],
+  Reading: [
+    {
+      question: "What does the passage most likely mean by 'structural advantage'?",
+      answer: "A built-in benefit from how something is organized.",
+      explanation: "The phrase points to a benefit that comes from the organization or structure itself.",
+    },
+    {
+      question: "If the author uses a critical tone, the most likely purpose is to:",
+      answer: "Highlight flaws or concerns.",
+      explanation: "A critical tone usually aims to point out problems or weaknesses.",
+    },
+    {
+      question: "A detail in the passage is most likely included to support:",
+      answer: "The main argument.",
+      explanation: "Supporting details are placed to reinforce the author’s central claim.",
+    },
+  ],
+  Grammar: [
+    {
+      question: "Choose the correct verb: 'Each player and coach (has/have) praised the new schedule.'",
+      answer: "has",
+      explanation: "With 'each' the subject is singular, so use 'has'.",
+    },
+    {
+      question: "Select the right pronoun: 'Neither of the students brought (his/their) notebook.'",
+      answer: "his",
+      explanation: "In traditional grammar, 'neither' takes a singular pronoun.",
+    },
+    {
+      question: "Which sentence is punctuated correctly?",
+      answer: "The team practiced hard, and it improved quickly.",
+      explanation: "The comma joins two independent clauses properly.",
+    },
+  ],
+  "Data Analysis": [
+    {
+      question: "If a value jumps from 10 to 15, what is the percent increase?",
+      answer: "50%",
+      explanation: "The increase is 5 on 10, which is 5/10 = 0.5 or 50%.",
+    },
+    {
+      question: "A chart shows 30 out of 50 students passed. What is the pass rate?",
+      answer: "60%",
+      explanation: "30 divided by 50 equals 0.6, or 60%.",
+    },
+    {
+      question: "True or false: A higher mean always means more spread.",
+      answer: "False",
+      explanation: "Mean and spread measure different aspects; the mean does not determine spread.",
+    },
+  ],
+  Timing: [
+    {
+      question: "If you have 35 minutes for 44 questions, what is the best pace?",
+      answer: "Roughly 45 seconds per question.",
+      explanation: "35 minutes divided by 44 gives just under 50 seconds per question.",
+    },
+    {
+      question: "When a question seems very hard, the best move is to:",
+      answer: "Skip it and return if time remains.",
+      explanation: "Saving time for easier questions helps maintain accuracy and pace.",
+    },
+    {
+      question: "A strong pacing plan includes:",
+      answer: "Build-in review time at the end.",
+      explanation: "Review time helps catch avoidable errors after the first pass.",
+    },
+  ],
+  Pacing: [
+    {
+      question: "For a 60-question section in 60 minutes, the best pace is:",
+      answer: "1 minute per question.",
+      explanation: "That pace covers questions evenly and leaves a small buffer for review.",
+    },
+    {
+      question: "A pacing strategy should prioritize:",
+      answer: "Answering every question and marking hard ones to revisit.",
+      explanation: "Every question counts, so avoid leaving easy points on the table.",
+    },
+    {
+      question: "When time is low, you should first:",
+      answer: "Finish the easier questions.",
+      explanation: "Maximizing correct responses early builds confidence and points.",
+    },
+  ],
+  General: [
+    {
+      question: "Review strategies include: reading the question first or after the passage?",
+      answer: "Before the passage",
+      explanation: "Reading the question first helps target your reading and saves time.",
+    },
+    {
+      question: "A good study session is best when it includes:",
+      answer: "Focused practice and review.",
+      explanation: "Practice plus reflection builds stronger retention.",
+    },
+    {
+      question: "When you miss a question, the best next step is to:",
+      answer: "Read the explanation and redo a similar problem.",
+      explanation: "Active review turns mistakes into learning moments.",
+    },
+  ],
+};
+
+function getPracticeQuestionsForCategory(category: string): PracticeSet {
+  const exact = PRACTICE_QUESTION_SETS[category];
+  if (exact) {
+    return { category, questions: exact };
+  }
+
+  const normalized = category.toLowerCase();
+  if (normalized.includes("algebra")) {
+    return { category: "Algebra", questions: PRACTICE_QUESTION_SETS.Algebra };
+  }
+  if (normalized.includes("reading")) {
+    return { category: "Reading", questions: PRACTICE_QUESTION_SETS.Reading };
+  }
+  if (normalized.includes("grammar") || normalized.includes("english")) {
+    return { category: "Grammar", questions: PRACTICE_QUESTION_SETS.Grammar };
+  }
+  if (normalized.includes("data") || normalized.includes("statistics")) {
+    return { category: "Data Analysis", questions: PRACTICE_QUESTION_SETS["Data Analysis"] };
+  }
+  if (normalized.includes("timing") || normalized.includes("pacing")) {
+    return { category: "Timing", questions: PRACTICE_QUESTION_SETS.Timing };
+  }
+
+  return { category: "General review", questions: PRACTICE_QUESTION_SETS.General };
+}
+
+function buildResultText(examType: DiagnosticExamType, result: ReturnType<typeof gradeDiagnostic>) {
+  const strengths = result.strengths.length ? result.strengths.join(", ") : "None";
+  const weakAreas = result.weakAreas.length ? result.weakAreas.join(", ") : "None";
+  const missed = result.missedQuestions
+    .map((question) => `- ${question.category}: correct answer ${question.answer}. ${question.explanation}`)
+    .join("\n");
+  const planText = result.plan
+    .map((day) => `${day.day}: ${day.focus}\n${day.tasks.map((task) => `  • ${task}`).join("\n")}`)
+    .join("\n\n");
+
+  return [
+    `Exam: ${examType}`,
+    `Score: ${result.correctCount} / ${result.total}`,
+    `Level: ${result.levelLabel}`,
+    `Note: ${result.levelNote}`,
+    `Strengths: ${strengths}`,
+    `Weak areas: ${weakAreas}`,
+    "",
+    "Missed question explanations:",
+    missed || "None",
+    "",
+    "7-day study plan:",
+    planText,
+  ].join("\n");
+}
 
 export default function DiagnosticPage() {
   const [examType, setExamType] = useState<DiagnosticExamType>("SAT");
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<ReturnType<typeof gradeDiagnostic> | null>(null);
+  const [practiceSet, setPracticeSet] = useState<PracticeSet | null>(null);
 
   const questions = useMemo(() => DIAGNOSTIC_QUESTIONS[examType], [examType]);
 
@@ -20,9 +206,41 @@ export default function DiagnosticPage() {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setResult(gradeDiagnostic(examType, selectedAnswers));
+  };
+
+  const handleCopyStudyPlan = async () => {
+    if (!result) return;
+    await navigator.clipboard.writeText(buildResultText(examType, result));
+  };
+
+  const handleDownloadResults = () => {
+    if (!result) return;
+
+    const text = buildResultText(examType, result);
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "diagnostic-results.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRetakeDiagnostic = () => {
+    setSelectedAnswers({});
+    setResult(null);
+    setPracticeSet(null);
+  };
+
+  const handlePracticeWeakAreas = () => {
+    if (!result) return;
+    const category = result.weakAreas[0] || result.strengths[0] || "General";
+    setPracticeSet(getPracticeQuestionsForCategory(category));
   };
 
   const isReadyToSubmit = questions.every((question) => selectedAnswers[question.id]);

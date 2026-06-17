@@ -4,9 +4,40 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, BookOpen, BarChart3, ArrowRight } from "lucide-react";
+import { CheckCircle2, BookOpen, BarChart3, ArrowRight, Copy, Download, RefreshCcw, Sparkles } from "lucide-react";
+
+const SAMPLE_STUDY_PLAN = [
+  "Day 1: Algebra concept review",
+  "Day 2: Timed practice set",
+  "Day 3: Reading strategy drills",
+];
 
 export default function Home() {
+  const copyStudyPlan = async () => {
+    const plan = `Diagnostic Study Plan:\n${SAMPLE_STUDY_PLAN.join("\n")}`;
+    try {
+      await navigator.clipboard.writeText(plan);
+      alert("Study plan copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy plan:", err);
+    }
+  };
+
+  const downloadResults = () => {
+    const data = `SAT Coach Diagnostic Results
+Score: 4 / 5 correct
+Level: Developing
+Weak Areas: Algebra, Timing
+Strengths: Reading, Grammar`;
+    const blob = new Blob([data], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "diagnostic-results.txt";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Hero Section */}
@@ -88,10 +119,28 @@ export default function Home() {
               <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Next week plan</p>
                 <ul className="mt-3 space-y-2 text-sm text-slate-300">
-                  <li>Day 1: Algebra concept review</li>
-                  <li>Day 2: Timed practice set</li>
-                  <li>Day 3: Reading strategy drills</li>
+                  {SAMPLE_STUDY_PLAN.map((step, idx) => (
+                    <li key={idx}>{step}</li>
+                  ))}
                 </ul>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                <Button variant="outline" size="sm" onClick={copyStudyPlan} className="text-xs h-9">
+                  <Copy className="mr-2 h-3.5 w-3.5" /> Copy Plan
+                </Button>
+                <Button variant="outline" size="sm" onClick={downloadResults} className="text-xs h-9">
+                  <Download className="mr-2 h-3.5 w-3.5" /> Download
+                </Button>
+                <Button variant="outline" size="sm" asChild className="text-xs h-9">
+                  <Link href="/diagnostic">
+                    <RefreshCcw className="mr-2 h-3.5 w-3.5" /> Retake
+                  </Link>
+                </Button>
+                <Button size="sm" asChild className="text-xs h-9 bg-cyan-600 hover:bg-cyan-500 border-none">
+                  <Link href="/practice">
+                    <Sparkles className="mr-2 h-3.5 w-3.5" /> Practice
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -181,8 +230,8 @@ export default function Home() {
               <h3 className="font-semibold text-white">{step.title}</h3>
               <p className="mt-2 text-sm text-slate-400">{step.desc}</p>
               {idx < 4 && (
-                <div className="absolute -right-4 top-6 hidden text-2xl text-slate-700 md:block">
-                  →
+                <div className="absolute -right-4 top-6 hidden text-slate-700 md:block">
+                  <ArrowRight className="h-6 w-6" />
                 </div>
               )}
             </div>
@@ -228,16 +277,16 @@ export default function Home() {
             { icon: BarChart3, title: "Smart Prioritization", desc: "We calculate which topics give you the highest score improvement potential." },
             { icon: CheckCircle2, title: "Real-Time Tracking", desc: "Mark tasks complete as you go and watch your progress accumulate." },
             { icon: BookOpen, title: "Realistic Expectations", desc: "Score predictor shows what's achievable based on your time and effort." },
-          ].map((item, idx) => (
+          ].map(({ icon: Icon, title, desc }, idx) => (
             <Card key={idx}>
               <CardHeader>
                 <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/20">
-                  <item.icon className="h-6 w-6 text-cyan-300" />
+                  <Icon className="h-6 w-6 text-cyan-300" />
                 </div>
-                <CardTitle>{item.title}</CardTitle>
+                <CardTitle>{title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-slate-400">{item.desc}</p>
+                <p className="text-sm text-slate-400">{desc}</p>
               </CardContent>
             </Card>
           ))}
