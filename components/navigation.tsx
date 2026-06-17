@@ -10,6 +10,7 @@ export default function Navigation() {
 
   const links = [
     { label: "Home", href: "/" },
+    { label: "Diagnostic", href: "/diagnostic" },
     { label: "SAT", href: "/sat" },
     { label: "ACT", href: "/act" },
     { label: "AP Exams", href: "/ap" },

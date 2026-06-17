@@ -28,12 +28,73 @@ export default function Home() {
           
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Button size="lg" asChild>
-              <Link href="/study-plan">Generate My Study Plan</Link>
+              <Link href="/diagnostic">Start Free Diagnostic</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="#exams">Explore Exams</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Diagnostic Snapshot Section */}
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-8">
+        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-center">
+          <div>
+            <div className="mb-6 inline-flex items-center rounded-full bg-cyan-500/10 px-4 py-2 text-sm text-cyan-300 ring-1 ring-cyan-500/20">
+              Free Diagnostic
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-4">Quick check. Instant test prep direction.</h2>
+            <p className="text-lg text-slate-300 mb-6">
+              Take a five-question diagnostic for SAT, ACT, or AP and get a fast coach-style report with your strengths, weak areas, estimated level, and a one-week action plan.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                { title: "Weak areas", desc: "See the exact topics holding your score back." },
+                { title: "Strengths", desc: "Know what you can build on immediately." },
+                { title: "Score estimate", desc: "Get a level estimate without a full test." },
+                { title: "Next week plan", desc: "Start studying with a simple one-week schedule." },
+              ].map((item) => (
+                <div key={item.title} className="rounded-3xl border border-white/10 bg-slate-950/70 p-5">
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm text-slate-400">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Card className="border-cyan-500/20 bg-slate-900/80">
+            <CardHeader>
+              <Badge variant="secondary" className="mb-2">Sample Result</Badge>
+              <CardTitle>Diagnostic Coach Report</CardTitle>
+              <CardDescription>Instant feedback from a quick sample check.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-3xl bg-slate-950/80 p-4">
+                <p className="text-sm text-slate-400">Score</p>
+                <p className="text-3xl font-bold text-white">4 / 5 correct</p>
+                <p className="text-sm text-slate-400">Level: Developing</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Weak areas</p>
+                  <p className="mt-2 font-semibold text-white">Algebra, Timing</p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Strengths</p>
+                  <p className="mt-2 font-semibold text-white">Reading, Grammar</p>
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Next week plan</p>
+                <ul className="mt-3 space-y-2 text-sm text-slate-300">
+                  <li>Day 1: Algebra concept review</li>
+                  <li>Day 2: Timed practice set</li>
+                  <li>Day 3: Reading strategy drills</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -186,13 +247,13 @@ export default function Home() {
       {/* Final CTA */}
       <section className="mx-auto max-w-4xl px-4 py-20 sm:px-8 text-center">
         <h2 className="mb-4 text-4xl font-bold text-white">
-          Create your plan in under 2 minutes.
+          Start your free diagnostic today.
         </h2>
         <p className="mb-8 text-xl text-slate-400">
-          No sign-up. No credit card. Just your personalized study strategy.
+          Take a fast 5-question check and get a personalized study direction instantly.
         </p>
         <Button size="lg" asChild>
-          <Link href="/study-plan">Get Started Now</Link>
+          <Link href="/diagnostic">Start Free Diagnostic</Link>
         </Button>
       </section>
     </div>
