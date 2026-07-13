@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DIAGNOSTIC_QUESTIONS, gradeDiagnostic, type DiagnosticExamType } from "@/lib/diagnostic-data";
+import { DIAGNOSTIC_QUESTIONS, type DiagnosticExamType, type DiagnosticResult } from "@/lib/diagnostic-data";
+import { buildReportText, generateDiagnosticReport } from "@/lib/generateReport";
 
 type PracticeQuestion = {
   question: string;
@@ -168,37 +169,14 @@ function getPracticeQuestionsForCategory(category: string): PracticeSet {
   return { category: "General review", questions: PRACTICE_QUESTION_SETS.General };
 }
 
-function buildResultText(examType: DiagnosticExamType, result: ReturnType<typeof gradeDiagnostic>) {
-  const strengths = result.strengths.length ? result.strengths.join(", ") : "None";
-  const weakAreas = result.weakAreas.length ? result.weakAreas.join(", ") : "None";
-  const missed = result.missedQuestions
-    .map((question) => `- ${question.category}: correct answer ${question.answer}. ${question.explanation}`)
-    .join("\n");
-  const planText = result.plan
-    .map((day) => `${day.day}: ${day.focus}\n${day.tasks.map((task) => `  • ${task}`).join("\n")}`)
-    .join("\n\n");
-
-  return [
-    `Exam: ${examType}`,
-    `Score: ${result.correctCount} / ${result.total}`,
-    `Level: ${result.levelLabel}`,
-    `Note: ${result.levelNote}`,
-    `Strengths: ${strengths}`,
-    `Weak areas: ${weakAreas}`,
-    "",
-    "Missed question explanations:",
-    missed || "None",
-    "",
-    "7-day study plan:",
-    planText,
-  ].join("\n");
-}
-
 export default function DiagnosticPage() {
   const [examType, setExamType] = useState<DiagnosticExamType>("SAT");
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<ReturnType<typeof gradeDiagnostic> | null>(null);
+  const [result, setResult] = useState<DiagnosticResult | null>(null);
   const [practiceSet, setPracticeSet] = useState<PracticeSet | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
   const questions = useMemo(() => DIAGNOSTIC_QUESTIONS[examType], [examType]);
 
@@ -206,20 +184,39 @@ export default function DiagnosticPage() {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setResult(gradeDiagnostic(examType, selectedAnswers));
+    setIsGenerating(true);
+    setErrorMessage(null);
+    setStatusMessage("");
+
+    try {
+      const report = await generateDiagnosticReport({ examType, selectedAnswers });
+      setResult(report);
+      setStatusMessage("Diagnostic report ready.");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("We could not generate your report right now. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleCopyStudyPlan = async () => {
     if (!result) return;
-    await navigator.clipboard.writeText(buildResultText(examType, result));
+    try {
+      await navigator.clipboard.writeText(buildReportText(examType, result));
+      setStatusMessage("Plan copied to clipboard.");
+    } catch (error) {
+      console.error(error);
+      setStatusMessage("Copy failed. Please try again.");
+    }
   };
 
   const handleDownloadResults = () => {
     if (!result) return;
 
-    const text = buildResultText(examType, result);
+    const text = buildReportText(examType, result);
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -235,6 +232,8 @@ export default function DiagnosticPage() {
     setSelectedAnswers({});
     setResult(null);
     setPracticeSet(null);
+    setErrorMessage(null);
+    setStatusMessage("");
   };
 
   const handlePracticeWeakAreas = () => {
@@ -248,7 +247,7 @@ export default function DiagnosticPage() {
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-10 sm:px-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-xl shadow-cyan-500/5">
+        <header className="mb-8 rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-xl shadow-cyan-500/5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <Badge variant="secondary" className="mb-3">Free Diagnostic</Badge>
@@ -261,19 +260,22 @@ export default function DiagnosticPage() {
               <Link href="/">Back to home</Link>
             </Button>
           </div>
-        </div>
+        </header>
 
         <div className="grid gap-8 lg:grid-cols-[0.9fr_0.95fr]">
           <div>
-            <div className="mb-6 flex flex-wrap gap-3">
+            <div className="mb-6 flex flex-wrap gap-3" role="group" aria-label="Choose exam type">
               {examTypes.map((type) => (
                 <Button
                   key={type}
+                  type="button"
                   variant={examType === type ? "default" : "outline"}
                   onClick={() => {
                     setExamType(type);
                     setSelectedAnswers({});
                     setResult(null);
+                    setErrorMessage(null);
+                    setStatusMessage("");
                   }}
                 >
                   {type}
@@ -289,7 +291,8 @@ export default function DiagnosticPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {questions.map((question, index) => (
-                  <Card key={question.id} className="rounded-3xl border border-white/10 bg-slate-950/70 p-5">
+                  <fieldset key={question.id} className="rounded-3xl border border-white/10 bg-slate-950/70 p-5">
+                    <legend className="sr-only">{question.category}</legend>
                     <CardHeader className="p-0">
                       <div className="flex items-center justify-between gap-4">
                         <div>
@@ -320,15 +323,23 @@ export default function DiagnosticPage() {
                         ))}
                       </div>
                     </CardContent>
-                  </Card>
+                  </fieldset>
                 ))}
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-slate-400">
-                    {isReadyToSubmit ? "Ready to grade your diagnostic." : "Select one answer for each question."}
-                  </p>
-                  <Button type="submit" disabled={!isReadyToSubmit} className="w-full sm:w-auto">
-                    Grade My Diagnostic
+                  <div>
+                    <p className="text-sm text-slate-300">
+                      {isReadyToSubmit ? "Ready to grade your diagnostic." : "Select one answer for each question."}
+                    </p>
+                    {statusMessage ? (
+                      <p className="mt-1 text-sm text-cyan-300" aria-live="polite">{statusMessage}</p>
+                    ) : null}
+                    {errorMessage ? (
+                      <p className="mt-1 text-sm text-red-300" role="alert">{errorMessage}</p>
+                    ) : null}
+                  </div>
+                  <Button type="submit" disabled={!isReadyToSubmit || isGenerating} className="w-full sm:w-auto">
+                    {isGenerating ? "Generating..." : "Grade My Diagnostic"}
                   </Button>
                 </div>
               </form>
@@ -360,6 +371,18 @@ export default function DiagnosticPage() {
               </CardContent>
             </Card>
 
+            {isGenerating ? (
+              <Card className="rounded-[2rem] border border-cyan-500/20 bg-slate-900/90 p-6">
+                <CardHeader className="p-0">
+                  <CardTitle>Generating your report</CardTitle>
+                  <CardDescription>Preparing your coaching summary and study plan.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 pt-4">
+                  <p className="text-sm text-slate-300">This uses mock data for now and will smoothly support a real API later.</p>
+                </CardContent>
+              </Card>
+            ) : null}
+
             {result ? (
               <Card className="rounded-[2rem] border border-cyan-500/20 bg-slate-900/90 p-6">
                 <CardHeader className="p-0">
@@ -369,13 +392,13 @@ export default function DiagnosticPage() {
                 <CardContent className="p-0 pt-4 space-y-5">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
-                      <p className="text-sm text-slate-400">Score</p>
+                      <p className="text-sm text-slate-300">Score</p>
                       <p className="mt-2 text-3xl font-bold text-white">{result.correctCount} / {result.total}</p>
                     </div>
                     <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
-                      <p className="text-sm text-slate-400">Level</p>
+                      <p className="text-sm text-slate-300">Level</p>
                       <p className="mt-2 text-2xl font-bold text-white">{result.levelLabel}</p>
-                      <p className="mt-2 text-sm text-slate-400">{result.levelNote}</p>
+                      <p className="mt-2 text-sm text-slate-300">{result.levelNote}</p>
                     </div>
                   </div>
 
@@ -401,7 +424,7 @@ export default function DiagnosticPage() {
                           ))}
                         </ul>
                       ) : (
-                        <p className="mt-3 text-sm text-slate-400">No weak areas to report.</p>
+                        <p className="mt-3 text-sm text-slate-300">No weak areas to report.</p>
                       )}
                     </div>
                   </div>
@@ -448,6 +471,16 @@ export default function DiagnosticPage() {
                 </CardContent>
               </Card>
             ) : null}
+
+            <Card className="rounded-[2rem] border border-white/10 bg-slate-900/90 p-6">
+              <CardHeader className="p-0">
+                <CardTitle>Mock data notice</CardTitle>
+                <CardDescription>This diagnostic report currently uses mock data and is structured for a future API integration.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 pt-4">
+                <p className="text-sm text-slate-300">The “Weak areas” and “Strengths” sample result section is placeholder data for now.</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

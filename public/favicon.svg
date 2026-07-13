@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Exam Coach AI icon</title>
+  <desc id="desc">A cyan shield with an E in the center.</desc>
+  <rect width="64" height="64" rx="16" fill="#020617" />
+  <path d="M18 12h28l8 8v24l-8 8H18l-8-8V20l8-8Zm4 8v24h20V20H22Zm4 6h12v4H26Zm0 8h8v4h-8Z" fill="#22d3ee" />
+</svg>

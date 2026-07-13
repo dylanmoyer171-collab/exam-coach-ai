@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,13 +14,16 @@ const SAMPLE_STUDY_PLAN = [
 ];
 
 export default function Home() {
+  const [statusMessage, setStatusMessage] = useState("");
+
   const copyStudyPlan = async () => {
     const plan = `Diagnostic Study Plan:\n${SAMPLE_STUDY_PLAN.join("\n")}`;
     try {
       await navigator.clipboard.writeText(plan);
-      alert("Study plan copied to clipboard!");
+      setStatusMessage("Plan copied to clipboard.");
     } catch (err) {
       console.error("Failed to copy plan:", err);
+      setStatusMessage("Copy failed. Please try again.");
     }
   };
 
@@ -36,6 +40,7 @@ Strengths: Reading, Grammar`;
     link.download = "diagnostic-results.txt";
     link.click();
     URL.revokeObjectURL(url);
+    setStatusMessage("Diagnostic report downloaded.");
   };
 
   return (
@@ -101,23 +106,24 @@ Strengths: Reading, Grammar`;
               <CardDescription>Instant feedback from a quick sample check.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* MOCK DATA: Sample report content used until a real scoring engine is connected. */}
               <div className="rounded-3xl bg-slate-950/80 p-4">
-                <p className="text-sm text-slate-400">Score</p>
+                <p className="text-sm text-slate-300">Score</p>
                 <p className="text-3xl font-bold text-white">4 / 5 correct</p>
-                <p className="text-sm text-slate-400">Level: Developing</p>
+                <p className="text-sm text-slate-300">Level: Developing</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Weak areas</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Weak areas</p>
                   <p className="mt-2 font-semibold text-white">Algebra, Timing</p>
                 </div>
                 <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Strengths</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Strengths</p>
                   <p className="mt-2 font-semibold text-white">Reading, Grammar</p>
                 </div>
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Next week plan</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Next week plan</p>
                 <ul className="mt-3 space-y-2 text-sm text-slate-300">
                   {SAMPLE_STUDY_PLAN.map((step, idx) => (
                     <li key={idx}>{step}</li>
@@ -125,10 +131,11 @@ Strengths: Reading, Grammar`;
                 </ul>
               </div>
               <div className="grid grid-cols-2 gap-3 mt-6">
-                <Button variant="outline" size="sm" onClick={copyStudyPlan} className="text-xs h-9">
+                <div className="sr-only" aria-live="polite">{statusMessage}</div>
+                <Button type="button" variant="outline" size="sm" onClick={copyStudyPlan} className="text-xs h-9">
                   <Copy className="mr-2 h-3.5 w-3.5" /> Copy Plan
                 </Button>
-                <Button variant="outline" size="sm" onClick={downloadResults} className="text-xs h-9">
+                <Button type="button" variant="outline" size="sm" onClick={downloadResults} className="text-xs h-9">
                   <Download className="mr-2 h-3.5 w-3.5" /> Download
                 </Button>
                 <Button variant="outline" size="sm" asChild className="text-xs h-9">
@@ -137,7 +144,7 @@ Strengths: Reading, Grammar`;
                   </Link>
                 </Button>
                 <Button size="sm" asChild className="text-xs h-9 bg-cyan-600 hover:bg-cyan-500 border-none">
-                  <Link href="/practice">
+                  <Link href="/resources">
                     <Sparkles className="mr-2 h-3.5 w-3.5" /> Practice
                   </Link>
                 </Button>
